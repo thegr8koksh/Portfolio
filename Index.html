@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kareem Hatem — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===========================
+   CSS VARIABLES & RESET
+=========================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:       #00674F;
+  --green-light: #00a07a;
+  --green-dim:   rgba(0,103,79,0.12);
+  --green-glow:  rgba(0,103,79,0.35);
+  --bg:          #0d0d0d;
+  --bg2:         #121212;
+  --bg3:         #181818;
+  --card:        #161616;
+  --border:      rgba(255,255,255,0.07);
+  --text:        #e8e8e8;
+  --muted:       #6b6b6b;
+  --white:       #ffffff;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ===========================
+   CUSTOM CURSOR
+=========================== */
+.cursor {
+  position: fixed; width: 10px; height: 10px;
+  background: var(--green); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+  mix-blend-mode: normal;
+}
+.cursor-ring {
+  position: fixed; width: 36px; height: 36px;
+  border: 1.5px solid var(--green); border-radius: 50%;
+  pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: transform 0.18s ease, width 0.25s, height 0.25s, border-color 0.2s;
+  opacity: 0.6;
+}
+body:has(a:hover) .cursor, body:has(button:hover) .cursor { width: 6px; height: 6px; }
+body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 52px; height: 52px; border-color: var(--green-light); opacity: 1; }
+
+/* Cursor inversion on green backgrounds */
+#accomplishments .cursor,
+.marquee-strip .cursor,
+.btn-primary:hover ~ #cursor {
+  background: #0d0d0d;
+  border-color: #0d0d0d;
+}
+
+/* JS-driven cursor inversion via data attribute on body */
+body[data-cursor-dark="true"] .cursor {
+  background: #0d0d0d !important;
+}
+body[data-cursor-dark="true"] .cursor-ring {
+  border-color: #0d0d0d !important;
+}
+
+/* ===========================
+   GRAIN OVERLAY
+=========================== */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  pointer-events: none; z-index: 1; opacity: 0.5;
+}
+
+/* ===========================
+   NAVIGATION
+=========================== */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.2rem 4rem;
+  border-bottom: 1px solid transparent;
+  transition: background 0.4s, border-color 0.4s, padding 0.3s;
+}
+nav.scrolled {
+  background: rgba(13,13,13,0.92);
+  backdrop-filter: blur(18px);
+  border-color: var(--border);
+  padding: 0.8rem 4rem;
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  color: var(--white);
+  text-decoration: none;
+}
+.nav-logo span { color: var(--green); }
+.nav-links { display: flex; gap: 2.4rem; list-style: none; }
+.nav-links a {
+  font-size: 0.82rem; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+  height: 1px; background: var(--green);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.25s ease;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-links a:hover::after { transform: scaleX(1); }
+.nav-cta {
+  font-size: 0.8rem; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--green);
+  border: 1px solid var(--green); border-radius: 2px;
+  padding: 0.5rem 1.2rem; text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.nav-cta:hover { background: var(--green); color: var(--white); }
+.nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+.nav-hamburger span { width: 24px; height: 1.5px; background: var(--text); transition: 0.3s; }
+
+/* ===========================
+   HERO SECTION
+=========================== */
+#hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 5rem 4rem 5rem;
+  position: relative; overflow: hidden;
+}
+
+/* --- Shooting Stars Background (canvas) --- */
+#hero-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+#hero-stars canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* All hero content stays above stars */
+#hero > *:not(#hero-stars) { position: relative; z-index: 1; }
+
+.hero-bg-line {
+  position: absolute; top: 0; right: 8rem; bottom: 0;
+  width: 1px; background: var(--border);
+  z-index: 1;
+}
+.hero-bg-line::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 40%;
+  background: linear-gradient(to bottom, transparent, var(--green), transparent);
+  animation: lineSlide 4s ease-in-out infinite;
+}
+@keyframes lineSlide {
+  0%,100% { top: -40%; } 50% { top: 60%; }
+}
+.hero-eyebrow {
+  font-family: var(--font-mono); font-size: 0.78rem;
+  color: var(--green); letter-spacing: 0.18em; text-transform: uppercase;
+  margin-bottom: 1.4rem;
+  opacity: 0; transform: translateY(20px);
+  animation: fadeUp 0.7s 0.3s forwards;
+}
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 14vw, 13rem);
+  line-height: 0.88; letter-spacing: -0.01em;
+  color: var(--white);
+  opacity: 0; transform: translateY(40px);
+  animation: fadeUp 0.9s 0.5s forwards;
+}
+.hero-name em {
+  font-style: normal; color: var(--green);
+  -webkit-text-stroke: 0px; text-stroke: 0px;
+}
+.hero-tagline {
+  max-width: 560px; margin-top: 2rem;
+  font-size: 1rem; line-height: 1.65; color: var(--muted); font-weight: 300;
+  opacity: 0; transform: translateY(20px);
+  animation: fadeUp 0.8s 0.8s forwards;
+}
+.hero-actions {
+  display: flex; gap: 1rem; margin-top: 2.5rem; flex-wrap: wrap;
+  opacity: 0; transform: translateY(20px);
+  animation: fadeUp 0.8s 1.1s forwards;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--green); color: var(--white);
+  font-size: 0.82rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.85rem 2rem; border-radius: 2px; text-decoration: none; border: none; cursor: none;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.btn-primary:hover { background: var(--green-light); box-shadow: 0 0 28px var(--green-glow); transform: translateY(-1px); }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: transparent; color: var(--text);
+  font-size: 0.82rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.85rem 2rem; border-radius: 2px; text-decoration: none; cursor: none;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-ghost:hover { border-color: var(--green); color: var(--green); }
+
+.hero-stats {
+  position: absolute; right: 4rem; bottom: 5rem;
+  display: flex; flex-direction: column; gap: 1.4rem;
+  opacity: 0; animation: fadeIn 1s 1.5s forwards;
+  z-index: 1;
+}
+.hero-stat { text-align: right; }
+.hero-stat-num {
+  font-family: var(--font-display); font-size: 2.4rem;
+  line-height: 1; color: var(--white);
+}
+.hero-stat-num span { color: var(--green); }
+.hero-stat-label { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+
+.hero-scroll {
+  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  opacity: 0; animation: fadeIn 1s 2s forwards;
+  z-index: 1;
+}
+.hero-scroll-label { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+.scroll-line {
+  width: 1px; height: 48px; background: var(--border); position: relative; overflow: hidden;
+}
+.scroll-line::after {
+  content: ''; position: absolute; top: -100%; left: 0; right: 0; height: 100%;
+  background: var(--green);
+  animation: scrollAnim 1.8s 2.5s ease-in-out infinite;
+}
+@keyframes scrollAnim { 0% { top: -100%; } 100% { top: 100%; } }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { to { opacity: 1; } }
+
+/* ===========================
+   SECTION SHARED STYLES
+=========================== */
+section { padding: 6rem 4rem; position: relative; }
+.section-label {
+  font-family: var(--font-mono); font-size: 0.72rem;
+  color: var(--green); letter-spacing: 0.2em; text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  line-height: 0.9; color: var(--white); letter-spacing: 0.01em;
+  margin-bottom: 3rem;
+}
+.divider {
+  width: 48px; height: 2px; background: var(--green); margin: 1.5rem 0 2.5rem;
+}
+
+/* ===========================
+   ABOUT SECTION
+=========================== */
+#about { background: var(--bg2); }
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+.about-text p {
+  font-size: 1.05rem; line-height: 1.8; color: var(--muted); font-weight: 300;
+}
+.about-text p strong { color: var(--text); font-weight: 500; }
+.about-right { display: flex; flex-direction: column; gap: 1.5rem; }
+.info-item { display: flex; align-items: baseline; gap: 1rem; }
+.info-key {
+  font-family: var(--font-mono); font-size: 0.72rem;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--green);
+  min-width: 80px;
+}
+.info-val { font-size: 0.9rem; color: var(--text); }
+
+/* ===========================
+   SKILLS SECTION
+=========================== */
+#skills { background: var(--bg); }
+.skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.skill-group {
+  background: var(--card); padding: 2.4rem; border: 1px solid var(--border);
+  transition: border-color 0.3s, background 0.3s;
+}
+.skill-group:hover { border-color: var(--green); background: var(--bg3); }
+.skill-group-title {
+  font-family: var(--font-mono); font-size: 0.72rem;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 1.5rem;
+}
+.skill-tags { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.skill-tag {
+  font-size: 0.82rem; font-weight: 400; color: var(--text);
+  border: 1px solid var(--border); border-radius: 2px;
+  padding: 0.38rem 0.9rem;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.skill-tag:hover { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+
+/* ===========================
+   ACCOMPLISHMENTS
+=========================== */
+#accomplishments {
+  background: var(--green);
+  overflow: hidden;
+}
+#accomplishments .section-label { color: rgba(255,255,255,0.5); }
+#accomplishments .section-title { color: var(--white); }
+.accom-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: 1rem; }
+.accom-card {
+  background: rgba(0,0,0,0.18); padding: 2.8rem 2rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  transition: background 0.3s;
+}
+.accom-card:hover { background: rgba(0,0,0,0.32); }
+.accom-icon {
+  font-size: 1.8rem; margin-bottom: 1.2rem;
+}
+.accom-title {
+  font-family: var(--font-display); font-size: 2rem;
+  line-height: 1.1; color: var(--white); margin-bottom: 0.4rem;
+}
+.accom-sub { font-size: 0.82rem; color: rgba(255,255,255,0.6); font-weight: 300; }
+
+/* ===========================
+   TIMELINE (EXPERIENCE & EDUCATION)
+=========================== */
+#timeline { background: var(--bg2); }
+.timeline { position: relative; padding-left: 2.5rem; }
+.timeline::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 1px; background: var(--border);
+}
+.timeline-item {
+  position: relative; margin-bottom: 3.5rem;
+}
+.timeline-item::before {
+  content: ''; position: absolute; left: -2.5rem; top: 0.35rem;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--bg2); border: 2px solid var(--green);
+  transform: translateX(-4px);
+  transition: background 0.2s;
+}
+.timeline-item:hover::before { background: var(--green); }
+.timeline-date {
+  font-family: var(--font-mono); font-size: 0.72rem;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--green);
+  margin-bottom: 0.4rem;
+}
+.timeline-role {
+  font-size: 1.1rem; font-weight: 500; color: var(--white); margin-bottom: 0.2rem;
+}
+.timeline-org { font-size: 0.88rem; color: var(--muted); margin-bottom: 0.5rem; }
+.timeline-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.65; font-weight: 300; }
+
+.timeline-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; }
+.timeline-col-title {
+  font-family: var(--font-mono); font-size: 0.72rem;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 2.5rem;
+}
+
+/* ===========================
+   PROJECTS — HORIZONTAL SCROLL TIMELINE
+=========================== */
+/* Outer wrapper holds the scroll "height" so the page pauses here */
+#projects-outer {
+  position: relative;
+}
+
+#projects {
+  background: var(--bg);
+  padding: 6rem 0 4rem 4rem;
+  overflow: visible;
+  position: sticky;
+  top: 0;
+}
+
+#projects .section-label,
+#projects .section-title {
+  padding-right: 4rem;
+}
+
+/* Scroll track wrapper */
+.projects-track-wrapper {
+  position: relative;
+  margin-top: 1.5rem;
+  overflow: hidden; /* clip the axis line, not the track */
+}
+
+/* Horizontal timeline axis line */
+.projects-track-wrapper::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 48px;
+  height: 1px;
+  background: var(--border);
+  z-index: 0;
+}
+
+/* Scrollable container */
+.projects-track {
+  display: flex;
+  gap: 0;
+  overflow-x: scroll;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 1rem;
+  position: relative;
+  cursor: grab;
+  padding-top: 28px;
+  /* Hide scrollbar - navigation is via page scroll */
+  scrollbar-width: none;
+}
+.projects-track::-webkit-scrollbar { display: none; }
+.projects-track:active { cursor: grabbing; }
+
+/* Individual card */
+.proj-card {
+  flex: 0 0 340px;
+  min-width: 340px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 2.2rem;
+  position: relative;
+  scroll-snap-align: start;
+  transition: border-color 0.3s, transform 0.3s;
+  cursor: none;
+  margin-right: 2px;
+  /* stagger-in via JS */
+  opacity: 0;
+  transform: translateY(28px);
+}
+.proj-card.proj-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.55s ease, transform 0.55s ease, border-color 0.3s;
+}
+.proj-card:first-child { margin-left: 0; }
+.proj-card:last-child { margin-right: 4rem; }
+
+/* Top accent bar */
+.proj-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: var(--green);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.proj-card:hover { border-color: rgba(0,103,79,0.4); transform: translateY(-4px); }
+.proj-card:hover::before { transform: scaleX(1); }
+
+/* Timeline dot above each card */
+.proj-dot {
+  position: absolute;
+  top: -18px; left: 2.2rem;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--green);
+  background: var(--bg);
+  transition: background 0.2s;
+  z-index: 1;
+}
+.proj-card:hover .proj-dot { background: var(--green); }
+
+.proj-num {
+  font-family: var(--font-mono); font-size: 0.66rem;
+  color: var(--green); letter-spacing: 0.12em;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+.proj-name {
+  font-size: 1.05rem; font-weight: 500; color: var(--white);
+  margin-bottom: 0.7rem; line-height: 1.35;
+}
+.proj-desc {
+  font-size: 0.82rem; color: var(--muted); line-height: 1.7;
+  font-weight: 300;
+}
+.proj-tags {
+  display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 1.4rem;
+}
+.proj-tag {
+  font-family: var(--font-mono); font-size: 0.65rem;
+  letter-spacing: 0.07em; color: var(--green);
+  background: var(--green-dim); border-radius: 2px; padding: 0.18rem 0.55rem;
+}
+
+/* Featured first card — wider */
+.proj-card-featured {
+  flex: 0 0 440px;
+  min-width: 440px;
+}
+.proj-card-featured .proj-name { font-size: 1.25rem; }
+
+/* ===========================
+   CONTACT / FOOTER
+=========================== */
+#contact {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+}
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+.contact-cta-text {
+  font-family: var(--font-display); font-size: clamp(2.2rem,5vw,4rem);
+  line-height: 1; color: var(--white);
+}
+.contact-cta-text span { color: var(--green); }
+.contact-links { display: flex; flex-direction: column; gap: 1.4rem; margin-top: 2rem; }
+.contact-link {
+  display: flex; align-items: center; gap: 1.2rem;
+  text-decoration: none; group: true;
+}
+.contact-link-icon {
+  width: 40px; height: 40px; border: 1px solid var(--border); border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+.contact-link:hover .contact-link-icon { border-color: var(--green); background: var(--green-dim); }
+.contact-link-label { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.15rem; font-family: var(--font-mono); }
+.contact-link-val { font-size: 0.92rem; color: var(--text); }
+.contact-link:hover .contact-link-val { color: var(--green); }
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 4rem;
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--bg);
+}
+.footer-copy { font-size: 0.78rem; color: var(--muted); }
+.footer-langs { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; }
+
+/* ===========================
+   SCROLL REVEAL
+=========================== */
+.reveal {
+  opacity: 0; transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ===========================
+   MARQUEE STRIP
+=========================== */
+.marquee-strip {
+  background: var(--green); overflow: hidden;
+  padding: 0.9rem 0; border-top: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.marquee-inner {
+  display: flex; gap: 3rem; white-space: nowrap;
+  animation: marquee 20s linear infinite;
+}
+.marquee-item {
+  font-family: var(--font-display); font-size: 1.15rem;
+  letter-spacing: 0.06em; color: var(--white); flex-shrink: 0;
+}
+.marquee-item span { color: rgba(255,255,255,0.4); margin-right: 3rem; }
+@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (max-width: 900px) {
+  nav { padding: 1rem 1.5rem; }
+  nav.scrolled { padding: 0.7rem 1.5rem; }
+  .nav-links { display: none; }
+  .nav-links.open {
+    display: flex; flex-direction: column;
+    position: fixed; inset: 0; top: 60px;
+    background: rgba(13,13,13,0.98);
+    padding: 3rem 2rem; gap: 2rem; z-index: 99;
+  }
+  .nav-links.open a { font-size: 1.1rem; }
+  .nav-hamburger { display: flex; }
+  .nav-cta { display: none; }
+  section { padding: 4rem 1.5rem; }
+  #hero { padding: 5rem 1.5rem 5rem; }
+  .hero-stats { display: none; }
+  .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .accom-grid { grid-template-columns: repeat(2, 1fr); }
+  .timeline-cols { grid-template-columns: 1fr; gap: 2.5rem; }
+  footer { flex-direction: column; gap: 0.8rem; text-align: center; padding: 1.5rem; }
+  body { cursor: auto; }
+  .cursor, .cursor-ring { display: none; }
+
+  /* Projects on mobile */
+  #projects { padding: 4rem 0 4rem 1.5rem; }
+  #projects .section-label, #projects .section-title { padding-right: 1.5rem; }
+  .proj-card { flex: 0 0 280px; min-width: 280px; }
+  .proj-card-featured { flex: 0 0 300px; min-width: 300px; }
+  .proj-card:last-child { margin-right: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- NAVIGATION -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">K<span>.</span>H</a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#accomplishments">Achievements</a></li>
+    <li><a href="#timeline">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Let's Talk</a>
+  <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ===========================
+     HERO
+=========================== -->
+<section id="hero">
+  <!-- Shooting Stars Canvas -->
+  <div id="hero-stars">
+    <canvas id="starsCanvas"></canvas>
+  </div>
+
+  <div class="hero-bg-line"></div>
+  <div class="hero-eyebrow">Cairo, Egypt — Available for Opportunities</div>
+  <h1 class="hero-name">KAREEM<br><em>HATEM</em></h1>
+  <p class="hero-tagline">
+    Business Information Systems &amp; Computer Science Scholar.<br>
+    Ex-Professional Athlete. Guinness World Record Holder.
+  </p>
+  <div class="hero-actions">
+    <a href="#projects" class="btn-primary">View My Work ↓</a>
+    <a href="#contact" class="btn-ghost">Get in Touch</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num"><span>4</span>×</div>
+      <div class="hero-stat-label">African Champion</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num"><span>3</span>×</div>
+      <div class="hero-stat-label">Arab Champion</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num"><span>1</span></div>
+      <div class="hero-stat-label">World Record</div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span class="hero-scroll-label">Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <!-- Doubled for seamless loop -->
+    <span class="marquee-item">Guinness World Record Holder <span>✦</span></span>
+    <span class="marquee-item">4× African Champion <span>✦</span></span>
+    <span class="marquee-item">3× Arab Champion <span>✦</span></span>
+    <span class="marquee-item">Full-Stack Developer <span>✦</span></span>
+    <span class="marquee-item">Computer Science Scholar <span>✦</span></span>
+    <span class="marquee-item">BIS Graduate, AASTMT <span>✦</span></span>
+    <span class="marquee-item">Guinness World Record Holder <span>✦</span></span>
+    <span class="marquee-item">4× African Champion <span>✦</span></span>
+    <span class="marquee-item">3× Arab Champion <span>✦</span></span>
+    <span class="marquee-item">Full-Stack Developer <span>✦</span></span>
+    <span class="marquee-item">Computer Science Scholar <span>✦</span></span>
+    <span class="marquee-item">BIS Graduate, AASTMT <span>✦</span></span>
+  </div>
+</div>
+
+<!-- ===========================
+     ABOUT
+=========================== -->
+<section id="about">
+  <div class="section-label reveal">// 01 — About Me</div>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <h2 class="section-title">Building at the<br>intersection of<br><em style="color:var(--green);font-style:normal;">sport &amp; code</em></h2>
+      <div class="divider"></div>
+      <p>
+        Results-driven <strong>Business Information Systems graduate</strong> and current <strong>Computer Science scholar</strong> with a proven track record of balancing rigorous academic pursuits with high-level professional and national commitments. Demonstrated exceptional time management and discipline by commencing a master's degree in computer science concurrently with military service obligations, maintaining a high standard of academic excellence.
+      </p>
+      <br>
+      <p>
+        Proficient in <strong>full-stack development</strong> and system analysis, I combine a competitive athletic mindset with technical expertise to solve complex problems and foster collaborative team success.
+      </p>
+    </div>
+    <div class="about-right reveal reveal-delay-2">
+      <div class="info-item"><span class="info-key">Location</span><span class="info-val">Cairo, Egypt 11765</span></div>
+      <div class="info-item"><span class="info-key">Degree</span><span class="info-val">MSc Information Systems (In Progress)</span></div>
+      <div class="info-item"><span class="info-key">Languages</span><span class="info-val">Arabic (Native) · English (Professional)</span></div>
+      <div class="info-item"><span class="info-key">Status</span><span class="info-val">Open to Opportunities</span></div>
+      <div class="info-item"><span class="info-key">Email</span><span class="info-val" style="font-size:0.82rem">Kareemhatem2001.kh@gmail.com</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     SKILLS
+=========================== -->
+<section id="skills">
+  <div class="section-label reveal">// 02 — Skills</div>
+  <h2 class="section-title reveal">Technical<br>Expertise</h2>
+  <div class="skills-grid">
+    <div class="skill-group reveal">
+      <div class="skill-group-title">Programming Languages</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Java</span>
+        <span class="skill-tag">Python</span>
+        <span class="skill-tag">PHP</span>
+        <span class="skill-tag">SQL</span>
+        <span class="skill-tag">Dart</span>
+        <span class="skill-tag">Kotlin</span>
+      </div>
+    </div>
+    <div class="skill-group reveal reveal-delay-2">
+      <div class="skill-group-title">Web Development</div>
+      <div class="skill-tags">
+        <span class="skill-tag">HTML5</span>
+        <span class="skill-tag">CSS3</span>
+        <span class="skill-tag">JavaScript</span>
+        <span class="skill-tag">Flutter</span>
+        <span class="skill-tag">Streamlit</span>
+        <span class="skill-tag">Figma</span>
+      </div>
+    </div>
+    <div class="skill-group reveal reveal-delay-3">
+      <div class="skill-group-title">Concepts &amp; Tools</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Data Analysis</span>
+        <span class="skill-tag">OOP</span>
+        <span class="skill-tag">Problem Solving</span>
+        <span class="skill-tag">DB Admin</span>
+        <span class="skill-tag">SQL Integration</span>
+        <span class="skill-tag">Code Debugging</span>
+        <span class="skill-tag">ERP Systems</span>
+        <span class="skill-tag">Info Retrieval</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     ACCOMPLISHMENTS
+=========================== -->
+<section id="accomplishments">
+  <div class="section-label reveal">// 03 — Achievements</div>
+  <h2 class="section-title reveal">Athletic<br>Milestones</h2>
+  <div class="accom-grid">
+    <div class="accom-card reveal">
+      <div class="accom-icon">🏆</div>
+      <div class="accom-title">Guinness World Record</div>
+      <div class="accom-sub">World Record Holder · Ex-Professional Swimmer</div>
+    </div>
+    <div class="accom-card reveal reveal-delay-2">
+      <div class="accom-icon">🌍</div>
+      <div class="accom-title">4× African Champion</div>
+      <div class="accom-sub">Continental Level · Elite Competition</div>
+    </div>
+    <div class="accom-card reveal reveal-delay-3">
+      <div class="accom-icon">🏅</div>
+      <div class="accom-title">3× Arab Champion</div>
+      <div class="accom-sub">Regional Level · Dominant Performance</div>
+    </div>
+    <div class="accom-card reveal reveal-delay-4">
+      <div class="accom-icon">🎓</div>
+      <div class="accom-title">Academic Excellence</div>
+      <div class="accom-sub">MSc while on National Service · AASTMT Scholar</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     TIMELINE
+=========================== -->
+<section id="timeline">
+  <div class="section-label reveal">// 04 — Experience &amp; Education</div>
+  <h2 class="section-title reveal">Journey</h2>
+  <div class="timeline-cols">
+    <!-- Education -->
+    <div>
+      <div class="timeline-col-title reveal">Education</div>
+      <div class="timeline reveal">
+        <div class="timeline-item">
+          <div class="timeline-date">Expected 06 / 2028</div>
+          <div class="timeline-role">MSc — Information Systems</div>
+          <div class="timeline-org">Arab Academy for Science, Technology &amp; Maritime Transport</div>
+          <div class="timeline-desc">Master's degree commenced concurrently with military service, demonstrating elite-level time management and commitment.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">02 / 2026</div>
+          <div class="timeline-role">Post-Baccalaureate Diploma</div>
+          <div class="timeline-org">Computer &amp; Information Systems · AASTMT</div>
+          <div class="timeline-desc">Advanced diploma deepening specialization in computer science fundamentals and applied systems.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">06 / 2024</div>
+          <div class="timeline-role">BSc — Business Information Systems</div>
+          <div class="timeline-org">Arab Academy for Science, Technology &amp; Maritime Transport</div>
+          <div class="timeline-desc">Graduation project: Athleonix — a comprehensive scholarship ecosystem for athletes targeting USA, Germany &amp; Canada.</div>
+        </div>
+      </div>
+    </div>
+    <!-- Experience -->
+    <div>
+      <div class="timeline-col-title reveal">Experience</div>
+      <div class="timeline reveal">
+        <div class="timeline-item">
+          <div class="timeline-date">08 / 2025 — Current</div>
+          <div class="timeline-role">Teacher's Assistant</div>
+          <div class="timeline-org">Arab Academy for Science, Technology &amp; Maritime Transport</div>
+          <div class="timeline-desc">Assisting students with special needs through individualized instruction and personalized support strategies. Increased student engagement with dynamic lesson plans designed to accommodate diverse learning styles.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">06 / 2023 — 07 / 2023</div>
+          <div class="timeline-role">Intern</div>
+          <div class="timeline-org">Egyptian Natural Gas Holding Company (EGAS)</div>
+          <div class="timeline-desc">Supported staff members, sorted and organized files, and collaborated on group projects to measurably improve operational efficiency within the department.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="projects-outer">
+<!-- ===========================
+     PROJECTS — HORIZONTAL SCROLL TIMELINE
+=========================== -->
+<section id="projects">
+  <div class="section-label reveal">// 05 — Featured Projects</div>
+  <h2 class="section-title reveal">Selected<br>Work</h2>
+
+  <div class="projects-track-wrapper reveal">
+    <div class="projects-track" id="projectsTrack">
+
+      <!-- 01 — Featured -->
+      <div class="proj-card proj-card-featured">
+        <div class="proj-dot"></div>
+        <div class="proj-num">01 — Graduation Project</div>
+        <div class="proj-name">Athleonix — Athlete Scholarship Ecosystem</div>
+        <div class="proj-desc">Designed and implemented a comprehensive digital ecosystem to help athletes secure scholarships in the USA, Germany, and Canada. Features a dedicated healthcare module, full-stack architecture with PHP backend and SQL database management, and an intuitive HTML/CSS/JS frontend.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">HTML/CSS/JS</span>
+          <span class="proj-tag">PHP</span>
+          <span class="proj-tag">SQL</span>
+          <span class="proj-tag">Full-Stack</span>
+          <span class="proj-tag">Healthcare Module</span>
+        </div>
+      </div>
+
+      <!-- 02 -->
+      <div class="proj-card">
+        <div class="proj-dot"></div>
+        <div class="proj-num">02</div>
+        <div class="proj-name">Semantic Search Engine</div>
+        <div class="proj-desc">Developed a search engine utilizing Information Retrieval principles and Python. Implemented semantic search capabilities to improve result relevancy and built an interactive web interface using Streamlit.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Python</span>
+          <span class="proj-tag">Streamlit</span>
+          <span class="proj-tag">Info Retrieval</span>
+          <span class="proj-tag">NLP</span>
+        </div>
+      </div>
+
+      <!-- 03 -->
+      <div class="proj-card">
+        <div class="proj-dot"></div>
+        <div class="proj-num">03</div>
+        <div class="proj-name">Sports Complex Management System</div>
+        <div class="proj-desc">Engineered an advanced relational database on Oracle Live SQL featuring an advanced ERD. Implemented complex business logic through PL/SQL using advanced joins, sub-queries, and triggers.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Oracle SQL</span>
+          <span class="proj-tag">PL/SQL</span>
+          <span class="proj-tag">DB Design</span>
+        </div>
+      </div>
+
+      <!-- 04 -->
+      <div class="proj-card">
+        <div class="proj-dot"></div>
+        <div class="proj-num">04</div>
+        <div class="proj-name">System Analysis &amp; Design</div>
+        <div class="proj-desc">Conducted full-lifecycle analysis producing architectural diagrams including Context, DFDs, Use Case, Class, Activity, and Sequence Diagrams to map out system logic and data flow.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Visual Paradigm</span>
+          <span class="proj-tag">System Analysis</span>
+          <span class="proj-tag">UML</span>
+        </div>
+      </div>
+
+      <!-- 05 -->
+      <div class="proj-card">
+        <div class="proj-dot"></div>
+        <div class="proj-num">05</div>
+        <div class="proj-name">Therapy Clinic Web Interface</div>
+        <div class="proj-desc">Designed and built a responsive website for a therapy clinic focusing on enhancing user engagement by integrating custom JavaScript interactions and CSS animations.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">JavaScript</span>
+          <span class="proj-tag">CSS3</span>
+          <span class="proj-tag">UI/UX</span>
+        </div>
+      </div>
+
+      <!-- 06 -->
+      <div class="proj-card">
+        <div class="proj-dot"></div>
+        <div class="proj-num">06</div>
+        <div class="proj-name">ERP System Implementation</div>
+        <div class="proj-desc">Configured and deployed an Odoo ERP solution. Integrated customized modules for CRM, After-Sales/Retail, and Event Management to streamline business processes.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Odoo ERP</span>
+          <span class="proj-tag">CRM</span>
+          <span class="proj-tag">Retail</span>
+          <span class="proj-tag">Event Mgmt</span>
+        </div>
+      </div>
+
+      <!-- 07 -->
+      <div class="proj-card">
+        <div class="proj-dot"></div>
+        <div class="proj-num">07</div>
+        <div class="proj-name">Software Project Management Plan</div>
+        <div class="proj-desc">Developed a detailed project management plan defining the Work Breakdown Structure (WBS), timelines, resource allocation, and critical path analysis.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">MS Project</span>
+          <span class="proj-tag">WBS</span>
+          <span class="proj-tag">Project Mgmt</span>
+        </div>
+      </div>
+
+      <!-- 08 -->
+      <div class="proj-card">
+        <div class="proj-dot"></div>
+        <div class="proj-num">08</div>
+        <div class="proj-name">Graduation Project Mobile Prototype</div>
+        <div class="proj-desc">Designed a high-fidelity mobile application prototype focusing on UI/UX principles to create a seamless user journey for athletes, universities, and sponsors.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Figma</span>
+          <span class="proj-tag">UI/UX</span>
+          <span class="proj-tag">Mobile Design</span>
+        </div>
+      </div>
+
+      <!-- 09 -->
+      <div class="proj-card">
+        <div class="proj-dot"></div>
+        <div class="proj-num">09</div>
+        <div class="proj-name">Swimming Equipment E-commerce Interface</div>
+        <div class="proj-desc">Developed a cross-platform mobile application interface dedicated to selling swimming equipment with a focus on performance and visual consistency.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Flutter</span>
+          <span class="proj-tag">Dart</span>
+          <span class="proj-tag">E-commerce</span>
+        </div>
+      </div>
+
+      <!-- 10 -->
+      <div class="proj-card">
+        <div class="proj-dot"></div>
+        <div class="proj-num">10</div>
+        <div class="proj-name">UI/UX Web Component Design</div>
+        <div class="proj-desc">Created a comprehensive website interface leveraging advanced features like components and variants to build a scalable design system.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Figma</span>
+          <span class="proj-tag">Design Systems</span>
+          <span class="proj-tag">UI Components</span>
+        </div>
+      </div>
+
+      <!-- 11 -->
+      <div class="proj-card">
+        <div class="proj-dot"></div>
+        <div class="proj-num">11</div>
+        <div class="proj-name">Sports Club Database</div>
+        <div class="proj-desc">Designed a functional club management system with custom input forms for data entry, SQL queries for manipulation, and automated administrative reports.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">MS Access</span>
+          <span class="proj-tag">SQL</span>
+          <span class="proj-tag">Reporting</span>
+        </div>
+      </div>
+
+      <!-- 12 -->
+      <div class="proj-card">
+        <div class="proj-dot"></div>
+        <div class="proj-num">12</div>
+        <div class="proj-name">Mobile Application Development</div>
+        <div class="proj-desc">Built a functional Android application implementing core CRUD database operations and a clean interface focused on mobile usability.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Android Studio</span>
+          <span class="proj-tag">Java</span>
+          <span class="proj-tag">Kotlin</span>
+        </div>
+      </div>
+
+    </div><!-- end .projects-track -->
+  </div><!-- end .projects-track-wrapper -->
+
+</section>
+</div><!-- end #projects-outer -->
+
+<!-- ===========================
+     CONTACT
+=========================== -->
+<section id="contact">
+  <div class="section-label reveal">// 06 — Contact</div>
+  <div class="contact-grid">
+    <div class="reveal">
+      <div class="contact-cta-text">Let's build<br>something<br><span>remarkable.</span></div>
+      <div style="margin-top:2rem">
+        <a href="mailto:Kareemhatem2001.kh@gmail.com" class="btn-primary">Send an Email →</a>
+      </div>
+    </div>
+    <div class="contact-links reveal reveal-delay-2">
+      <a href="mailto:Kareemhatem2001.kh@gmail.com" class="contact-link">
+        <div class="contact-link-icon">✉</div>
+        <div>
+          <div class="contact-link-label">Email</div>
+          <div class="contact-link-val">Kareemhatem2001.kh@gmail.com</div>
+        </div>
+      </a>
+      <a href="tel:+201020888252" class="contact-link">
+        <div class="contact-link-icon">☎</div>
+        <div>
+          <div class="contact-link-label">Phone</div>
+          <div class="contact-link-val">+20 102 088 8252</div>
+        </div>
+      </a>
+      <div class="contact-link" style="cursor:default">
+        <div class="contact-link-icon">📍</div>
+        <div>
+          <div class="contact-link-label">Location</div>
+          <div class="contact-link-val">Cairo, Egypt 11765</div>
+        </div>
+      </div>
+      <div class="contact-link" style="cursor:default">
+        <div class="contact-link-icon">🗣</div>
+        <div>
+          <div class="contact-link-label">Languages</div>
+          <div class="contact-link-val">Arabic (Native) · English (Professional)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-copy">© 2025 Kareem Hatem Abdelsabour — All rights reserved.</span>
+  <span class="footer-langs">Cairo, Egypt · Arabic · English</span>
+</footer>
+
+<!-- ===========================
+     JAVASCRIPT
+=========================== -->
+<script>
+/* ================================================
+   CUSTOM CURSOR
+================================================ */
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursor-ring');
+
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+  setTimeout(() => {
+    ring.style.left = e.clientX + 'px';
+    ring.style.top  = e.clientY + 'px';
+  }, 60);
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  if (el) {
+    const onGreen = el.closest('#accomplishments, .marquee-strip, .btn-primary');
+    document.body.setAttribute('data-cursor-dark', onGreen ? 'true' : 'false');
+  }
+});
+
+/* ================================================
+   NAVBAR SCROLL
+================================================ */
+const navbar = document.getElementById('navbar');
+
+/* ================================================
+   MOBILE MENU
+================================================ */
+function toggleMenu() {
+  document.getElementById('nav-links').classList.toggle('open');
+}
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('nav-links').classList.remove('open');
+  });
+});
+
+/* ================================================
+   SCROLL REVEAL
+================================================ */
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+revealEls.forEach(el => revealObserver.observe(el));
+
+/* ================================================
+   PROJECTS SETUP
+================================================ */
+const track          = document.getElementById('projectsTrack');
+const projectsOuter  = document.getElementById('projects-outer');
+const projectsSection = document.getElementById('projects');
+const projCards      = document.querySelectorAll('.proj-card');
+
+/* Staggered card reveal */
+const projObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) {
+    projCards.forEach((card, i) => {
+      setTimeout(() => card.classList.add('proj-visible'), i * 70);
+    });
+    projObserver.disconnect();
+  }
+}, { threshold: 0.05 });
+if (track) projObserver.observe(track);
+
+/* Mouse drag to scroll */
+let isDragging = false, dragStartX, dragScrollLeft;
+track.addEventListener('mousedown', e => {
+  isDragging = true;
+  track.style.userSelect = 'none';
+  dragStartX = e.pageX - track.offsetLeft;
+  dragScrollLeft = track.scrollLeft;
+});
+track.addEventListener('mouseleave', () => { isDragging = false; });
+track.addEventListener('mouseup',    () => { isDragging = false; track.style.userSelect = ''; });
+track.addEventListener('mousemove',  e => {
+  if (!isDragging) return;
+  e.preventDefault();
+  const x = e.pageX - track.offsetLeft;
+  track.scrollLeft = dragScrollLeft - (x - dragStartX) * 1.4;
+});
+
+/* ------------------------------------------------
+   STICKY HORIZONTAL SCROLL
+   The outer wrapper is given extra height equal to
+   the track's scrollable width. As the user scrolls
+   down into that extra space, we map the page scroll
+   offset directly to the track's scrollLeft.
+   The section is position:sticky so it stays pinned.
+------------------------------------------------ */
+function setOuterHeight() {
+  // Wait a tick so layout is fully painted
+  requestAnimationFrame(() => {
+    const extraScroll = track.scrollWidth - track.clientWidth;
+    const sectionH    = projectsSection.offsetHeight;
+    projectsOuter.style.height = (sectionH + extraScroll) + 'px';
+  });
+}
+// Run after fonts/images settle
+window.addEventListener('load', setOuterHeight);
+setOuterHeight();
+window.addEventListener('resize', setOuterHeight);
+
+/* Smooth sticky scroll: lerp track.scrollLeft toward target */
+let targetScrollLeft = 0;
+let currentScrollLeft = 0;
+const LERP_FACTOR = 0.08; // lower = smoother/slower, higher = snappier
+
+function smoothLoop() {
+  const diff = targetScrollLeft - currentScrollLeft;
+  if (Math.abs(diff) > 0.5) {
+    currentScrollLeft += diff * LERP_FACTOR;
+    track.scrollLeft = currentScrollLeft;
+  }
+  requestAnimationFrame(smoothLoop);
+}
+requestAnimationFrame(smoothLoop);
+
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 40);
+
+  const outerTop        = projectsOuter.offsetTop;
+  const scrollIntoOuter = window.scrollY - outerTop;
+  const maxScroll       = track.scrollWidth - track.clientWidth;
+
+  if (scrollIntoOuter >= 0 && scrollIntoOuter <= maxScroll) {
+    targetScrollLeft = scrollIntoOuter;
+  }
+}, { passive: true });
+
+/* ================================================
+   SHOOTING STARS — Canvas
+================================================ */
+(function() {
+  const canvas = document.getElementById('starsCanvas');
+  const hero   = document.getElementById('hero');
+  const ctx    = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Each shooting star travels at ~35° angle (mostly rightward + downward)
+  // Tail length 80–200px, speed 280–520 px/s
+  function randomStar() {
+    const angle = (28 + Math.random() * 16) * Math.PI / 180; // 28–44 degrees
+    const speed = 300 + Math.random() * 220;
+    const tailLen = 80 + Math.random() * 130;
+    // Spawn from top strip or left strip so they always shoot across visible area
+    let x, y;
+    if (Math.random() < 0.6) {
+      // spawn along top edge
+      x = Math.random() * canvas.width;
+      y = -tailLen;
+    } else {
+      // spawn along left edge
+      x = -tailLen;
+      y = Math.random() * (canvas.height * 0.6);
+    }
+    return {
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      tailLen,
+      alpha: 0,
+      phase: 'fadein', // fadein → travel → fadeout
+      life: 0,
+      totalLife: (tailLen + Math.max(canvas.width, canvas.height)) / speed
+    };
+  }
+
+  let stars = [];
+  // Stagger initial spawns
+  for (let i = 0; i < 10; i++) {
+    const s = randomStar();
+    // pre-advance so they don't all start simultaneously
+    const preAdv = Math.random() * s.totalLife;
+    s.x += s.vx * preAdv;
+    s.y += s.vy * preAdv;
+    s.life = preAdv;
+    stars.push(s);
+  }
+
+  // Occasionally spawn a new star
+  let spawnTimer = 0;
+  const SPAWN_INTERVAL = 0.45; // seconds between new stars
+
+  let lastTime = null;
+
+  function draw(ts) {
+    if (!lastTime) lastTime = ts;
+    const dt = Math.min((ts - lastTime) / 1000, 0.05); // seconds, capped
+    lastTime = ts;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    spawnTimer += dt;
+    if (spawnTimer >= SPAWN_INTERVAL && stars.length < 14) {
+      stars.push(randomStar());
+      spawnTimer = 0;
+    }
+
+    stars = stars.filter(s => {
+      s.life += dt;
+      s.x    += s.vx * dt;
+      s.y    += s.vy * dt;
+
+      // Fade in over first 0.25s, fade out over last 0.3s
+      const fadeIn  = 0.25;
+      const fadeOut = 0.30;
+      if (s.life < fadeIn) {
+        s.alpha = s.life / fadeIn;
+      } else if (s.life > s.totalLife - fadeOut) {
+        s.alpha = Math.max(0, (s.totalLife - s.life) / fadeOut);
+      } else {
+        s.alpha = 1;
+      }
+
+      if (s.life > s.totalLife) return false; // remove
+
+      // Draw tail: gradient line from (x - tailLen * cos, y - tailLen * sin) to (x, y)
+      const tx = s.x - Math.cos(Math.atan2(s.vy, s.vx)) * s.tailLen;
+      const ty = s.y - Math.sin(Math.atan2(s.vy, s.vx)) * s.tailLen;
+
+      const grad = ctx.createLinearGradient(tx, ty, s.x, s.y);
+      grad.addColorStop(0, `rgba(0,103,79,0)`);
+      grad.addColorStop(0.5, `rgba(0,160,122,${s.alpha * 0.55})`);
+      grad.addColorStop(1, `rgba(0,160,122,${s.alpha})`);
+
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(s.x, s.y);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.5;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // Bright head dot
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(180,255,230,${s.alpha * 0.9})`;
+      ctx.fill();
+
+      return true;
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
