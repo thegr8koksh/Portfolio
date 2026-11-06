@@ -358,6 +358,10 @@ main:focus { outline: none; }
 .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
 .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
 .menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.sound-btn { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 10px; color: var(--text-muted); transition: color .2s; }
+.sound-btn:hover, .sound-btn[aria-pressed="true"] { color: var(--emerald-400); }
+.sound-btn svg { width: 20px; height: 20px; }
+.sound-btn[aria-pressed="true"] .ico-off, .sound-btn[aria-pressed="false"] .ico-on { display: none; }
 
 /* ---- Mobile menu overlay ---- */
 .menu {
@@ -891,6 +895,10 @@ textarea.field-input { min-height: 160px; }
       <span class="nav-indicator" aria-hidden="true"></span>
     </nav>
     <div class="nav-actions">
+      <button class="sound-btn" id="sound-btn" type="button" aria-pressed="false" aria-label="Sound effects" title="Sound effects">
+        <svg class="ico-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+        <svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m22 9-6 6M16 9l6 6"/></svg>
+      </button>
       <a href="#contact" class="btn btn--ghost btn--sm">Let's Talk</a>
       <button class="menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
         <span></span><span></span><span></span>
@@ -930,9 +938,9 @@ textarea.field-input { min-height: 160px; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
       </a>
       <a href="#contact" class="btn btn--ghost magnetic">Get in Touch</a>
-      <a href="Kareem%20Hatem%20CV.pdf" class="btn btn--ghost" download="Kareem_Hatem_CV.pdf">
+      <a href="Kareem%20Hatem%20CV.pdf" class="btn btn--ghost" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
-        Download CV
+        Download CV<span class="sr-only"> (opens in a new tab)</span>
       </a>
     </div>
     <ul class="hero-stats" style="--in:5">
@@ -1405,6 +1413,97 @@ textarea.field-input { min-height: 160px; }
   const reduced     = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+  /* ---------- Sound effects: generated with Web Audio (no files), off until the visitor turns them on ---------- */
+  const sfx = (() => {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    let ctx = null, out = null, noise = null, lastTick = 0, on = false;
+    try { on = localStorage.getItem('sound') === 'on'; } catch (e) {}
+
+    const audio = () => {
+      if (!AC || !on) return null;
+      if (!ctx) { ctx = new AC(); out = ctx.createGain(); out.gain.value = .6; out.connect(ctx.destination); }
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      return ctx;
+    };
+    const tone = (freq, dur, { type = 'sine', gain = .2, to, delay = 0 } = {}) => {
+      const a = audio(); if (!a) return;
+      const t = a.currentTime + delay, o = a.createOscillator(), g = a.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t);
+      if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(gain, t + .004);
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g); g.connect(out);
+      o.start(t); o.stop(t + dur + .05);
+    };
+    const whoosh = (from, to, dur, gain = .18) => { // band-passed noise sweep
+      const a = audio(); if (!a) return;
+      if (!noise) {
+        noise = a.createBuffer(1, a.sampleRate, a.sampleRate);
+        const d = noise.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      }
+      const t = a.currentTime, src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+      src.buffer = noise;
+      f.type = 'bandpass'; f.Q.value = 1.4;
+      f.frequency.setValueAtTime(from, t);
+      f.frequency.exponentialRampToValueAtTime(to, t + dur);
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(gain, t + dur * .45);
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      src.connect(f); f.connect(g); g.connect(out);
+      src.start(t); src.stop(t + dur + .05);
+    };
+    const blip = (a, b) => { tone(a, .08, { gain: .14 }); tone(b, .12, { gain: .14, delay: .07 }); };
+    const NOTES = [392, 440, 523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51]; // pentatonic: any two notes sound fine together
+
+    return {
+      isOn: () => on,
+      setOn(v) {
+        if (!v) blip(990, 660);
+        on = v;
+        if (v) blip(660, 990);
+        try { localStorage.setItem('sound', v ? 'on' : 'off'); } catch (e) {}
+      },
+      unlock: () => { audio(); },
+      ping(x) {
+        const f = NOTES[clamp(Math.floor(x * NOTES.length), 0, NOTES.length - 1)];
+        tone(f, .7, { gain: .22, to: f * .97 });
+        tone(f * 2, .35, { gain: .05 });
+        tone(f, .5, { gain: .06, delay: .16 }); // sonar echo
+      },
+      success() { tone(880, .32, { type: 'triangle', gain: .16 }); tone(1318.51, .5, { type: 'triangle', gain: .16, delay: .1 }); },
+      error()   { tone(220, .22, { type: 'triangle', gain: .28, to: 150 }); },
+      chip(i)   { const f = NOTES[2 + i % 8]; tone(f * 1.25, .08, { type: 'triangle', gain: .18, to: f }); },
+      menuOpen()  { whoosh(500, 2600, .26); tone(660, .1, { gain: .06, delay: .2 }); },
+      menuClose() { whoosh(2600, 500, .22); },
+      toTop() { whoosh(300, 3200, .6, .14); tone(330, .6, { gain: .05, to: 990 }); tone(1318.51, .15, { gain: .08, delay: .58 }); },
+      pop()   { tone(320, .09, { gain: .3, to: 1100 }); },
+      hover() { tone(2400, .03, { gain: .035 }); },
+      tick(p) {
+        const now = performance.now();
+        if (now - lastTick < 45) return; // several counters roll at once
+        lastTick = now;
+        tone(1600 + p * 600, .025, { type: 'square', gain: .02 });
+      }
+    };
+  })();
+
+  function initSound() {
+    const btn = $('#sound-btn');
+    const sync = () => btn.setAttribute('aria-pressed', String(sfx.isOn()));
+    sync();
+    btn.addEventListener('click', () => { sfx.setOn(!sfx.isOn()); sync(); });
+    // Browsers keep audio locked until a click or key press; unlock on the first one for returning visitors.
+    ['click', 'keydown'].forEach(t => addEventListener(t, sfx.unlock, { once: true, capture: true }));
+    $$('.magnetic').forEach(el => {
+      el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') sfx.hover(); });
+      el.addEventListener('focus', () => { if (el.matches(':focus-visible')) sfx.hover(); });
+    });
+    $$('a[href$=".pdf"]').forEach(a => a.addEventListener('click', sfx.pop));
+  }
+
   /* ---------- Scroll reveals + typed section labels ---------- */
   function initReveal() {
     $$('[data-stagger]').forEach(g => [...g.children].forEach((c, i) => { c.classList.add('reveal'); c.style.setProperty('--d', i); }));
@@ -1456,6 +1555,7 @@ textarea.field-input { min-height: 160px; }
     $$('li a', menu).forEach((a, i) => a.style.setProperty('--i', i));
     const isOpen = () => menu.classList.contains('open');
     const setOpen = open => {
+      if (open !== isOpen()) (open ? sfx.menuOpen : sfx.menuClose)();
       menu.classList.toggle('open', open);
       document.body.classList.toggle('menu-open', open);
       btn.setAttribute('aria-expanded', String(open));
@@ -1542,6 +1642,8 @@ textarea.field-input { min-height: 160px; }
     const roll = el => $$('.odo-col', el).forEach((c, i) => {
       c.style.transitionDelay = i * 90 + 'ms';
       c.style.transform = `translateY(-${c.dataset.d * 1.1}em)`; // 1.1em = one digit row
+      // tick as each digit passes; 1600 = .odo-col transition length, cbrt approximates its ease-out
+      for (let k = 1, d = +c.dataset.d; k <= d; k++) setTimeout(() => sfx.tick(k / d), i * 90 + 1600 * (1 - Math.cbrt(1 - k / d)));
     });
     const io = new IntersectionObserver(entries => entries.forEach(e => {
       if (!e.isIntersecting) return;
@@ -1630,6 +1732,7 @@ textarea.field-input { min-height: 160px; }
     hero.addEventListener('pointerleave', () => { mouse.on = false; });
     hero.addEventListener('click', e => { // ripple: push nearby dots outward
       const r = canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      if (!e.target.closest('a, button')) sfx.ping(x / w); // hero buttons have their own sounds
       for (const p of pts) {
         const dx = p.x - x, dy = p.y - y, d = Math.hypot(dx, dy) || 1;
         if (d < RIPPLE) { const f = (1 - d / RIPPLE) * 7; p.kx += dx / d * f; p.ky += dy / d * f; }
@@ -1677,8 +1780,9 @@ textarea.field-input { min-height: 160px; }
     const items = [...grid.children];
     items.forEach((li, i) => li.style.setProperty('--d', i));
     let timer;
-    chips.forEach(chip => chip.addEventListener('click', () => {
+    chips.forEach((chip, i) => chip.addEventListener('click', () => {
       if (chip.getAttribute('aria-pressed') === 'true') return;
+      sfx.chip(i);
       chips.forEach(c => c.setAttribute('aria-pressed', String(c === chip)));
       const cat = chip.dataset.filter;
       const match = li => cat === 'all' || li.dataset.cat === cat;
@@ -1798,9 +1902,9 @@ textarea.field-input { min-height: 160px; }
     form.addEventListener('submit', e => {
       e.preventDefault();
       const bad = fields.filter(f => !check(f));
-      if (bad.length) { bad[0].focus(); return; }
+      if (bad.length) { sfx.error(); bad[0].focus(); return; }
       const fallback = `Please email me directly at <a class="link" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.`;
-      if (!window.emailjs) { setStatus('error', 'The mail service didn’t load. ' + fallback); return; }
+      if (!window.emailjs) { sfx.error(); setStatus('error', 'The mail service didn’t load. ' + fallback); return; }
 
       const [name, email, message] = fields.map(f => f.value.trim());
       btn.disabled = true;
@@ -1818,10 +1922,12 @@ textarea.field-input { min-height: 160px; }
           fields.forEach(f => f.removeAttribute('aria-invalid'));
           setStatus('success', 'Thanks! Your message was sent. I’ll get back to you soon.');
           label.textContent = 'Send message';
+          sfx.success();
           celebrate();
         })
         .catch(err => {
           console.error('EmailJS error:', err);
+          sfx.error();
           setStatus('error', 'Something went wrong. ' + fallback);
         })
         .finally(() => {
@@ -1835,6 +1941,7 @@ textarea.field-input { min-height: 160px; }
   /* ---------- Back to top ---------- */
   function initToTop() {
     $('#to-top').addEventListener('click', () => {
+      sfx.toTop();
       scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
       $('.logo').focus({ preventScroll: true });
     });
@@ -1858,6 +1965,7 @@ textarea.field-input { min-height: 160px; }
     initCursor();
     initContactForm();
     initToTop();
+    initSound();
   }
 
   init();
