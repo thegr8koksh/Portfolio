@@ -255,6 +255,7 @@ main:focus { outline: none; }
   transition: transform .35s var(--ease-out), background-color .25s, box-shadow .3s, border-color .25s, color .25s;
 }
 .btn svg { width: 18px; height: 18px; flex: none; }
+a[target="_blank"]::after { content: "\2197"; content: "\2197" / ""; margin-left: .15em; font-size: .9em; opacity: .7; }
 .btn--primary { background: var(--emerald-500); color: var(--bg); }
 .btn--ghost { border: 1px solid var(--border-strong); color: var(--text); }
 .btn--sm { min-height: 40px; padding: .6rem 1.15rem; font-size: .85rem; }
@@ -939,8 +940,8 @@ textarea.field-input { min-height: 160px; }
       </a>
       <a href="#contact" class="btn btn--ghost magnetic">Get in Touch</a>
       <a href="Kareem%20Hatem%20CV.pdf" class="btn btn--ghost" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
-        Download CV<span class="sr-only"> (opens in a new tab)</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>
+        View CV<span class="sr-only"> (opens in a new tab)</span>
       </a>
     </div>
     <ul class="hero-stats" style="--in:5">
@@ -1479,7 +1480,6 @@ textarea.field-input { min-height: 160px; }
       menuOpen()  { whoosh(500, 2600, .26); tone(660, .1, { gain: .06, delay: .2 }); },
       menuClose() { whoosh(2600, 500, .22); },
       toTop() { whoosh(300, 3200, .6, .14); tone(330, .6, { gain: .05, to: 990 }); tone(1318.51, .15, { gain: .08, delay: .58 }); },
-      pop()   { tone(320, .09, { gain: .3, to: 1100 }); },
       hover() { tone(2400, .03, { gain: .035 }); },
       tick(p) {
         const now = performance.now();
@@ -1500,9 +1500,7 @@ textarea.field-input { min-height: 160px; }
     $$('.magnetic').forEach(el => {
       el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') sfx.hover(); });
       el.addEventListener('focus', () => { if (el.matches(':focus-visible')) sfx.hover(); });
-    });
-    $$('a[href$=".pdf"]').forEach(a => a.addEventListener('click', sfx.pop));
-  }
+    });  }
 
   /* ---------- Scroll reveals + typed section labels ---------- */
   function initReveal() {
